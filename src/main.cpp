@@ -2,13 +2,14 @@
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "config.h"
 #include "gl_util.h"
+#include "game/game_loop.h"
+#include "game/key_input.h"
 
 int main(void) {
   GLFWwindow* window;
@@ -24,8 +25,8 @@ int main(void) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   /* Create a windowed mode window and its OpenGL context */
-  float window_width = 1500;
-  float window_height = 1200;
+  float window_width = 1200;
+  float window_height = 800;
   window =
       glfwCreateWindow(window_width, window_height, "Hello World", NULL, NULL);
   if (!window) {
@@ -35,8 +36,7 @@ int main(void) {
 
   /* Make the window's context current */
   glfwMakeContextCurrent(window);
-  glfwSwapInterval(1);
-
+  glfwSwapInterval(0);
   // Init glew to link to OpenGL implementation
   if (glewInit() != GLEW_OK) {
     std::cout << "Error!" << std::endl;
@@ -58,22 +58,35 @@ int main(void) {
   ImGui_ImplOpenGL3_Init(glsl_version);
   ImGui::StyleColorsDark();
 
+  KeyInput::Init(window);
+
+  // Init game loop object
+  GameLoop game_loop(window, window_width, window_height);
+
+  float delta_time, last_frame;
+
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(window)) {
+    float currentFrame = glfwGetTime();
+    delta_time = currentFrame - last_frame;
+    last_frame = currentFrame;
     /* Render here */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Begin rendering scene here
-
-    // End rendering scene here
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Scene");
-    // Render UI elements here
-    ImGui::End();
+    // Begin rendering scene here
+    game_loop.Update(delta_time);
+    game_loop.Render();
+    // End rendering scene here
+
+    if (game_loop.ShouldRenderUI()) {
+      ImGui::Begin("Debug UI");
+      game_loop.RenderUI();
+      ImGui::End();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
