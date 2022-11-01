@@ -1,105 +1,42 @@
-#include <iostream>
 
-#include "GL/glew.h"
-#include "GLFW/glfw3.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
-#include "config.h"
-#include "gl_util.h"
-#include "game/game_loop.h"
-#include "game/key_input.h"
+#include "game/window.h"
+#include "game/game.h"
+#include "game/ui.h"
 
-int main(void) {
-  GLFWwindow* window;
-
-  /* Initialize the library */
-  if (!glfwInit()) return -1;
-
-  // Set lowest possible version
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  // Set to core profile - necessary on MacOS
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  /* Create a windowed mode window and its OpenGL context */
-  float window_width = 1200;
-  float window_height = 800;
-  window =
-      glfwCreateWindow(window_width, window_height, "Hello World", NULL, NULL);
-  if (!window) {
-    glfwTerminate();
-    return -1;
+int main() {
+  Window window("OpenGL learning", 1200, 800);
+  if (!window.Init()) {
+    return 1;
   }
 
-  /* Make the window's context current */
-  glfwMakeContextCurrent(window);
-  glfwSwapInterval(0);
-  // Init glew to link to OpenGL implementation
-  if (glewInit() != GLEW_OK) {
-    std::cout << "Error!" << std::endl;
-  }
+  Ui ui;
+  ui.Init(window.GetWindow());
+  Game game(window.GetWindow(), window.GetWidth(), window.GetHeight());
 
-  // set up OpenGL options
-  GL_CALL(glEnable(GL_BLEND));
-  GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-  // clear with gray so that black object are visible
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  KeyInput::Init(window.GetWindow());
 
-  std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-  std::cout << "Resources directory: " << RESOURCE_PATH << std::endl;
+  float delta_time, last_frame, current_frame;
+  while (window.IsOpen()) {
+    current_frame = glfwGetTime();
+    delta_time = current_frame - last_frame;
+    last_frame = current_frame;
 
-  // ImGUI init
-  ImGui::CreateContext();
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  const char* glsl_version = "#version 410";  // should match OpenGL 4.1
-  ImGui_ImplOpenGL3_Init(glsl_version);
-  ImGui::StyleColorsDark();
+    game.Clear();
 
-  KeyInput::Init(window);
+    ui.StartLoop();
 
-  // Init game loop object
-  GameLoop game_loop(window, window_width, window_height);
-
-  float delta_time, last_frame;
-
-  /* Loop until the user closes the window */
-  while (!glfwWindowShouldClose(window)) {
-    float currentFrame = glfwGetTime();
-    delta_time = currentFrame - last_frame;
-    last_frame = currentFrame;
-    /* Render here */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    // Begin rendering scene here
-    game_loop.Update(delta_time);
-    game_loop.Render();
-    // End rendering scene here
-
-    if (game_loop.ShouldRenderUI()) {
-      ImGui::Begin("Debug UI");
-      game_loop.RenderUI();
-      ImGui::End();
+    game.Update(delta_time);
+    game.Render();
+    if (game.ShouldRenderUI()) {
+      ui.StartRenderUi();
+      game.RenderUI();
+      ui.EndRenderUi();
     }
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    /* Swap front and back buffers */
-    glfwSwapBuffers(window);
-
-    /* Poll for and process events */
-    glfwPollEvents();
+    ui.EndLoop();
+    window.Update();
   }
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
-  glfwTerminate();
+
   return 0;
 }

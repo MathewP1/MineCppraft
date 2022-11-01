@@ -2,8 +2,8 @@
 // Created by Mateusz Palkowski on 30/10/2022.
 //
 
-#ifndef MINECPPRAFT_GAME_LOOP_H
-#define MINECPPRAFT_GAME_LOOP_H
+#ifndef MINECPPRAFT_GAME_H
+#define MINECPPRAFT_GAME_H
 
 #include <memory>
 
@@ -11,19 +11,16 @@
 #include "game/mouse_input.h"
 #include "renderer/chunk_renderer_naive.h"
 
-// TODO: split GameWindow and GameLoop classes
-class GameLoop {
+// TODO: split GameWindow and Game classes
+class Game {
  public:
-  GameLoop(GLFWwindow* window, int screen_width, int screen_height);
+  Game(GLFWwindow* window, int screen_width, int screen_height);
 
+  void Clear();
   void Update(float delta_time);
   void Render();
   bool ShouldRenderUI();
   void RenderUI();
-
-  // event handlers
-  void RegisterInputHandler(void* window);
-  void OnWindowResize(int width, int height);
 
  private:
   void UpdateFixedTime(float delta_time);
@@ -46,4 +43,4 @@ class GameLoop {
   MouseInput mouse_input_;
 };
 
-#endif  // MINECPPRAFT_GAME_LOOP_H
+#endif  // MINECPPRAFT_GAME_H

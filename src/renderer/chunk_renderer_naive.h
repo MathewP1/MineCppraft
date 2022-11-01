@@ -8,9 +8,9 @@
 #include "glm/glm.hpp"
 
 namespace {
-constexpr int kSizeX = 16;
-constexpr int kSizeY = 16;
-constexpr int kSizeZ = 16;
+constexpr int kSizeX = 1;
+constexpr int kSizeY = 1;
+constexpr int kSizeZ = 1;
 constexpr int kCount = kSizeZ * kSizeY * kSizeX;
 }  // namespace
 

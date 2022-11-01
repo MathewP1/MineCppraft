@@ -2,7 +2,7 @@
 // Created by Mateusz Palkowski on 30/10/2022.
 //
 
-#include "game_loop.h"
+#include "game.h"
 
 #include <iostream>
 
@@ -11,16 +11,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "imgui/imgui.h"
 
-namespace {
-void WindowSizeCallback(GLFWwindow* window, int width, int height) {
-  GameLoop& game_loop =
-      *static_cast<GameLoop*>(glfwGetWindowUserPointer(window));
-  game_loop.OnWindowResize(width, height);
-}
-
-}  // namespace
-
-GameLoop::GameLoop(GLFWwindow* window, int screen_width, int screen_height)
+Game::Game(GLFWwindow* window, int screen_width, int screen_height)
     : screen_width_(screen_width),
       screen_height_(screen_height),
       projection_(glm::perspective(
@@ -28,12 +19,14 @@ GameLoop::GameLoop(GLFWwindow* window, int screen_width, int screen_height)
       chunk_renderer_(glm::vec3(1.0f)),
       key_input_({GLFW_KEY_Q}),
       mouse_input_(window) {
-  glfwSetWindowUserPointer(static_cast<GLFWwindow*>(window), this);
-  glfwSetWindowSizeCallback(static_cast<GLFWwindow*>(window),
-                            &WindowSizeCallback);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
-void GameLoop::Update(float delta_time) {
+void Game::Clear() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Game::Update(float delta_time) {
   UpdateFixedTime(delta_time);
   time_elapsed_ += delta_time;
 
@@ -46,19 +39,19 @@ void GameLoop::Update(float delta_time) {
   mvp_ = projection_ * camera_.GetViewMatrix() * glm::mat4(1.0f);
 }
 
-void GameLoop::UpdateFixedTime(float delta_time) {
+void Game::UpdateFixedTime(float delta_time) {
   float ms_per_update = 0.016f;  // 16 ms per update
   fixed_time_elapsed_ += delta_time;
   if (fixed_time_elapsed_ < ms_per_update) {
     return;
   }
-  // UpdateKeyboard with fixed timing
+  // Update with fixed timing
 
   // end update
   fixed_time_elapsed_ = 0.0f;
 }
 
-bool GameLoop::IsMouseToggleOn() {
+bool Game::IsMouseToggleOn() {
   bool current_state = key_input_.IsKeyDown(GLFW_KEY_Q);
 
   if (!last_state_ && current_state) {
@@ -71,10 +64,10 @@ bool GameLoop::IsMouseToggleOn() {
   return toggle_state_;
 }
 
-void GameLoop::Render() { chunk_renderer_.Render(mvp_); }
+void Game::Render() { chunk_renderer_.Render(mvp_); }
 
-bool GameLoop::ShouldRenderUI() { return true; }
-void GameLoop::RenderUI() {
+bool Game::ShouldRenderUI() { return true; }
+void Game::RenderUI() {
   auto params = camera_.GetCameraParams();
 
   ImGui::Text("Press Q to toggle camera mouse movement");
@@ -88,9 +81,9 @@ void GameLoop::RenderUI() {
 }
 
 
-void GameLoop::OnWindowResize(int width, int height) {
-  screen_width_ = width;
-  screen_height_ = height;
-  projection_ = glm::perspective(glm::radians(45.0f),
-                                 screen_width_ / screen_height_, 0.1f, 100.0f);
-}
+//void Game::OnWindowResize(int width, int height) {
+//  screen_width_ = width;
+//  screen_height_ = height;
+//  projection_ = glm::perspective(glm::radians(45.0f),
+//                                 screen_width_ / screen_height_, 0.1f, 100.0f);
+//}

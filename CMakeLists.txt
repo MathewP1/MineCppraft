@@ -20,12 +20,12 @@ configure_file(src/config.h.in src/config.h)
 
 set(SOURCE_FILES
         "src/gl_util.h" "src/gl_util.cpp"
-        src/game/game_loop.h src/game/game_loop.cpp
+        src/game/game.h src/game/game.cpp
         src/renderer/cube_renderer.h src/renderer/cube_renderer.cpp
         src/game/camera.h src/game/camera.cpp
         src/renderer/chunk_renderer_naive.h src/renderer/chunk_renderer_naive.cpp
         src/renderer/texture_atlas.h src/renderer/texture_atlas.cpp
-        src/game/key_input.h src/game/key_input.cpp src/game/mouse_input.h src/game/mouse_input.cpp)
+        src/game/key_input.h src/game/key_input.cpp src/game/mouse_input.h src/game/mouse_input.cpp src/renderer/textured_cube_renderer.h src/renderer/textured_cube_renderer.cpp src/game/window.h src/game/window.cpp src/game/event.h src/game/event.cpp src/game/ui.h src/game/ui.cpp src/game/event_bus.h)
 
 add_executable(MineCppraft src/main.cpp ${SOURCE_FILES})
 
