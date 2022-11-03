@@ -2,7 +2,7 @@
 // Created by Mateusz Palkowski on 21/10/2022.
 //
 
-#include "gl_util.h"
+#include "renderer/gl_util.h"
 
 #include <fstream>
 #include <sstream>

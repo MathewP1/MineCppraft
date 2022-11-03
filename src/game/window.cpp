@@ -9,7 +9,7 @@
 #include "GLFW/glfw3.h"
 
 
-Window::Window(std::string title, int width, int height)
+Window::Window(const std::string& title, int width, int height)
     : title_(title), width_(width), height_(height) {}
 
 Window::~Window() {
